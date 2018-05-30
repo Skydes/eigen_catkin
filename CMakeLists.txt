@@ -7,7 +7,7 @@ catkin_simple()
 
 include(ExternalProject)
 
-set(EIGEN_CATKIN_EIGEN_INCLUDE ${CATKIN_DEVEL_PREFIX}/include/eigen3)
+set(EIGEN_CATKIN_EIGEN_INCLUDE ${CATKIN_DEVEL_PREFIX}/include)
 set(EIGEN_CATKIN_EIGEN_INCLUDE_SIGNATURE ${EIGEN_CATKIN_EIGEN_INCLUDE}/signature_of_eigen3_matrix_library)
 
 set(EIGEN_MINIMUM_VERSION 3.2.10)
@@ -75,44 +75,46 @@ if(USE_SYSTEM_EIGEN)
 
   if(EIGEN_NAME)
     # this way ${EIGEN_NAME} will end up in the cs_export call's DEPENDS argument.
-    list(APPEND _DEPENDS ${EIGEN_NAME})
+    #list(APPEND _DEPENDS ${EIGEN_NAME})  # TODO
     message(STATUS "Found and using system Eigen in ${EIGEN_CATKIN_EIGEN_INCLUDE}")
   else()
     message(FATAL_ERROR "Could not find a system Eigen installation! What about turning on eigen_catkin's own Eigen installation by removing USE_SYSTEM_EIGEN.cmake or switching back to the master branch.")
   endif()
+  set(EIGEN_CATKIN_EIGEN_INCLUDE "")  # TODO
 else()
   message(STATUS "eigen_catkin is configured NOT to use system eigen")
-  file(MAKE_DIRECTORY ${EIGEN_CATKIN_EIGEN_INCLUDE})
-  ExternalProject_Add(eigen_src
-    UPDATE_COMMAND ""
-    URL http://bitbucket.org/eigen/eigen/get/3.2.10.tar.bz2
-    PATCH_COMMAND patch -p0 < ${CMAKE_CURRENT_SOURCE_DIR}/StdVector.patch
-    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=${CATKIN_DEVEL_PREFIX}  -DCMAKE_BUILD_TYPE:STRING=Release
-  )
+  #file(MAKE_DIRECTORY ${EIGEN_CATKIN_EIGEN_INCLUDE})
+  #ExternalProject_Add(eigen_src
+    #UPDATE_COMMAND ""
+    #URL https://bitbucket.org/eigen/eigen/get/6913f0cf7d06.tar.gz
+    #URL http://bitbucket.org/eigen/eigen/get/3.2.10.tar.bz2
+    #PATCH_COMMAND patch -p0 < ${CMAKE_SOURCE_DIR}/StdVector.patch
+    #CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=${CATKIN_DEVEL_PREFIX}  -DCMAKE_BUILD_TYPE:STRING=Release
+  #)
 
-  if(EXISTS ${EIGEN_CATKIN_EIGEN_INCLUDE_SIGNATURE}.off)
-    file(RENAME ${EIGEN_CATKIN_EIGEN_INCLUDE_SIGNATURE}.off ${EIGEN_CATKIN_EIGEN_INCLUDE_SIGNATURE})
-  endif()
+  #if(EXISTS ${EIGEN_CATKIN_EIGEN_INCLUDE_SIGNATURE}.off)
+    #file(RENAME ${EIGEN_CATKIN_EIGEN_INCLUDE_SIGNATURE}.off ${EIGEN_CATKIN_EIGEN_INCLUDE_SIGNATURE})
+  #endif()
 
-  message(STATUS "Using eigen_catkin's Eigen in ${EIGEN_CATKIN_EIGEN_INCLUDE}")
+  #message(STATUS "Using eigen_catkin's Eigen in ${EIGEN_CATKIN_EIGEN_INCLUDE}")
 endif()
 
 cs_add_library(${PROJECT_NAME} src/dependency_tracker.cc)
 
-if(NOT USE_SYSTEM_EIGEN)
-  add_dependencies(${PROJECT_NAME} eigen_src)
-endif()
+#if(NOT USE_SYSTEM_EIGEN)
+  #add_dependencies(${PROJECT_NAME} eigen_src)
+#endif()
 
 cs_install()
 
-if(NOT USE_SYSTEM_EIGEN)
-  install(DIRECTORY ${EIGEN_CATKIN_EIGEN_INCLUDE}
-    DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION}
-    FILES_MATCHING PATTERN "*.hpp"
-    PATTERN "*.h"
-    PATTERN ".svn" EXCLUDE
-  )
-endif()
+#if(NOT USE_SYSTEM_EIGEN)
+  #install(DIRECTORY ${EIGEN_CATKIN_EIGEN_INCLUDE}
+    #DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION}
+    #FILES_MATCHING PATTERN "*.hpp"
+    #PATTERN "*.h"
+    #PATTERN ".svn" EXCLUDE
+  #)
+#endif()
 
 cs_export(INCLUDE_DIRS ${EIGEN_CATKIN_EIGEN_INCLUDE}
           DEPENDS ${_DEPENDS}
